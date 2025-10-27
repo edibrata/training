@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pembelajaran Mendalam dan KKA</title>
+    <!-- Memuat Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Menggunakan font Inter secara default */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f7f9fc; /* Background sangat terang */
+        }
+        /* Custom styling untuk transisi halus pada dropdown */
+        .collapsible-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease-out, padding 0.4s ease-out;
+            padding-top: 0;
+            padding-bottom: 0;
+        }
+        .collapsible-content.active {
+            max-height: 800px; /* Nilai yang cukup besar */
+            padding-top: 0.75rem;
+            padding-bottom: 0.75rem;
+        }
+        .rotate-180 {
+            transform: rotate(180deg);
+            transition: transform 0.3s;
+        }
+        .rotate-0 {
+            transform: rotate(0deg);
+            transition: transform 0.3s;
+        }
+
+        /* Styling untuk Modal/Pop-up */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.85); /* Lebih gelap dan tebal */
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 20px;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 900px; /* Dikembalikan dari 850px */
+            position: relative;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+        }
+        .close-button {
+            color: #555;
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            font-size: 32px;
+            font-weight: bold;
+            z-index: 10;
+        }
+        .close-button:hover,
+        .close-button:focus {
+            color: #222;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        /* Kontainer untuk PDF (bukan video) */
+        .pdf-container {
+            position: relative;
+            width: 100%;
+            height: 75vh; /* Tinggi 75% dari layar */
+            overflow: hidden;
+            border: 1px solid #ddd;
+        }
+        .pdf-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 8px; /* Sudut melengkung untuk iframe */
+        }
+    </style>
+</head>
+<body class="min-h-screen p-4 sm:p-8">
+
+    <div class="max-w-3xl mx-auto">
+        <header class="text-center mb-10 p-6 sm:p-10 bg-white shadow-2xl rounded-2xl border-t-4 border-teal-500"> <!-- Diubah: p-10 -> p-6 sm:p-10 -->
+            <!-- Judul Utama (DIGABUNGKAN) -->
+            <h1 class="text-3xl sm:text-4xl font-extrabold text-gray-900"> <!-- Diperkecil dari 4xl/5xl -->
+                Pembelajaran Mendalam, Koding, dan Kecerdasan Artifisial
+            </h1>
+            <!-- Sub-Judul (DIHAPUS) -->
+            <!--
+            <p class="mt-2 text-2xl sm:text-3xl font-semibold text-teal-700">
+                Koding & Kecerdasan Artifisial
+            </p>
+            -->
+            <!-- Deskripsi (DIHAPUS) -->
+            <!--
+            <p class="mt-4 text-lg text-gray-600">
+                Kumpulan dokumen dan materi pendukung.
+            </p>
+            -->
+        </header>
+
+        <main id="dashboard-container">
+            <!-- Konten akan dimuat di sini oleh JavaScript -->
+        </main>
+
+        <!-- Footer -->
+        <footer class="mt-12 pt-6 border-t border-gray-200 text-center">
+            <p class="text-sm text-gray-500">
+                &copy; 2025 Edi Brata
+            </p>
+        </footer>
+        <!-- Akhir Footer -->
+
+    </div>
+
+    <!-- Elemen Modal (Pop-up) untuk PDF -->
+    <div id="pdfModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" onclick="closeModal()">&times;</span>
+            <h3 id="modalTitle" class="text-xl font-bold mb-4 text-gray-800">Judul Dokumen</h3> <!-- Dikembalikan ke xl -->
+            <div class="pdf-container">
+                <!-- Iframe PDF akan dimuat di sini -->
+                <iframe id="pdfIframe" src="" frameborder="0" width="100%" height="100%"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data konten dalam format JavaScript (DIGANTI TOTAL)
+        const contentData = [
+            {
+                title: "Prinsip dan Pengalaman Belajar PM",
+                id: "topic1",
+                links: [
+                    { title: "1. Prinsip Pembelajaran", url: "https://drive.google.com/file/d/1sRTQihzg0x_sqRhbsX9xAuLxTVYMWsXe/view?usp=drive_link" },
+                    { title: "2. Pengalaman Belajar", url: "https://drive.google.com/file/d/1oqsCt7xazy17TrSCaWZuA170CBcb0B7N/view?usp=drive_link" }
+                ]
+            },
+            {
+                title: "Kerangka Pembelajaran PM",
+                id: "topic2",
+                links: [
+                    { title: "Kerangka Pembelajaran PM", url: "https://drive.google.com/file/d/1jU_qXS2ykFGb4ZJXzER4xkziGVjok5YN/view?usp=drive_link" }
+                ]
+            },
+            {
+                title: "Berpikir Komputasional",
+                id: "topic3",
+                links: [
+                    { title: "1. Konsep Koding dan Kecerdasan Artifisial", url: "https://drive.google.com/file/d/158CKKpl8PMI3B4kOMpE1WDSwgAhtUflN/view?usp=drive_link" },
+                    { title: "2. Berpikir Komputasional sebagai dasar Koding dan Kecerdasan Artifisial", url: "https://drive.google.com/file/d/1Z9fsS1vsf73BADPzVOMFMnkCosgJysnI/view?usp=drive_link" }
+                ]
+            },
+            {
+                title: "Arah Kebijakan Koding KA",
+                id: "topic4",
+                links: [
+                    { title: "1. Arah Kebijakan Koding KA", url: "https://drive.google.com/file/d/1aM1fwem5GJzjDycyemfUWpnclGlXCBVS/view?usp=drive_link" },
+                    { title: "2. CP 2025 KepBSKAP 046-2025 SD Koding dan KA", url: "https://drive.google.com/file/d/1P3EkLv0npWV0Ja-xnd4N9h2kytx14crD/view?usp=drive_link" }
+                ]
+            },
+            {
+                title: "Ragam Contoh Pembelajaran Koding KA SD",
+                id: "topic5",
+                links: [
+                    { title: "1. Rancangan Pembelajaran Gamifikasi_ Misi Penjelajah Bintang", url: "https://drive.google.com/file/d/1VXNjEwvB5PD2yotfViyV1gcNcVFGWPM0/view?usp=drive_link" },
+                    { title: "2. Rancangan Pembelajaran Unplugged Coding_Detektif Pola", url: "https://drive.google.com/file/d/15buLWqPtyh_zgpBWeMRZtf1DdtJNHnG8/view?usp=drive_link" },
+                    { title: "3. Rancangan Pembelajaran Unplugged Coding_Petualangan Ksatria", url: "https://drive.google.com/file/d/1eTe7sqzAODiIOOmWhbUZgFoU7cYYmgEv/view?usp=drive_link" },
+                    { title: "4. Rancangan Pembelajaran Unplugged Coding_Robot Koki", url: "https://drive.google.com/file/d/1WKGxsU_H9slm6dNXlhqGSx3JthbgT_cq/view?usp=drive_link" },
+                    { title: "5. Rancangan Pembelajaran Unplugged Coding_Rute Tercepat ke Sekolah", url: "https://drive.google.com/file/d/1Nbwaczh1DWcJaWUNXTcTl8ZvIsAipGud/view?usp=drive_link" }
+                ]
+            },
+            {
+                title: "Transformasi Peran Guru dan Ekosistem Pembelajaran",
+                id: "topic6",
+                links: [
+                    { title: "Transformasi Peran Guru dan Ekosistem Pembelajaran", url: "https://drive.google.com/file/d/1aktUR7WpCofcW8PCCgfTAkX_8NhJOPo0/view?usp=sharing" }
+                ]
+            }
+        ];
+        
+        // --- Fungsi Modal/Pop-up PDF ---
+
+        /**
+         * Mengonversi URL Google Drive 'view' menjadi URL 'preview' yang dapat disematkan.
+         * @param {string} url URL Google Drive 'view'.
+         * @returns {string} URL Google Drive 'preview'.
+         */
+        function getGoogleDriveEmbedUrl(url) {
+            // Mencocokkan ID file dari format /d/FILE_ID/view
+            const regex = /\/d\/([a-zA-Z0-9_-]+)\/view/;
+            const match = url.match(regex);
+            
+            if (match && match[1]) {
+                const fileId = match[1];
+                // Mengembalikan URL embed /preview
+                return `https://drive.google.com/file/d/${fileId}/preview`;
+            }
+            console.warn("Format URL Google Drive tidak dikenali, tautan mungkin tidak tersemat:", url);
+            // Kembalikan URL asli sebagai fallback jika tidak ada yang cocok
+            return url; 
+        }
+
+        function openModal(title, url) {
+            const modal = document.getElementById('pdfModal');
+            const iframe = document.getElementById('pdfIframe');
+            const modalTitle = document.getElementById('modalTitle');
+            
+            const embedUrl = getGoogleDriveEmbedUrl(url);
+
+            if (embedUrl) {
+                iframe.src = embedUrl;
+                modalTitle.textContent = title;
+                modal.style.display = 'block';
+                document.body.style.overflow = 'hidden'; 
+            } else {
+                console.error("Gagal mendapatkan URL embed Google Drive:", url);
+            }
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('pdfModal');
+            const iframe = document.getElementById('pdfIframe');
+            
+            // Menghentikan iframe dengan mengatur src menjadi kosong
+            iframe.src = '';
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        // Tutup modal ketika pengguna mengklik di luar area modal
+        window.onclick = function(event) {
+            const modal = document.getElementById('pdfModal');
+            if (event.target == modal) {
+                closeModal();
+            }
+        }
+
+
+        // --- Fungsi Dropdown (Accordion) & Inisialisasi UI ---
+
+        // Fungsi untuk membuat elemen HTML
+        function createElement(tag, classes, content = '') {
+            const el = document.createElement(tag);
+            if (classes) el.className = classes;
+            if (content) el.innerHTML = content;
+            return el;
+        }
+
+        /**
+         * Menerapkan gaya visual untuk tautan PDF.
+         * @param {HTMLElement} buttonElement - Elemen <button> yang akan diberi gaya.
+         */
+        function applyDynamicStyle(buttonElement) {
+            // Terapkan kelas gaya standar untuk tautan PDF
+            // Diubah: Menambahkan flex-col sm:flex-row, items-start sm:items-center
+            buttonElement.className = 'w-full flex flex-col items-start sm:flex-row sm:items-center sm:justify-between border p-4 rounded-xl transition duration-150 shadow-md text-left group bg-white border-gray-300 hover:bg-teal-50 hover:border-teal-400 hover:shadow-lg cursor-pointer'; 
+            
+            const title = buttonElement.getAttribute('data-title');
+            
+            // Ikon PDF (Dokumen)
+            const iconSvg = `
+                <svg class="w-6 h-6 mr-3 text-red-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.svg.org/2000/svg"> <!-- Ukuran ikon dikembalikan ke w-6 h-6 mr-3 -->
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>`; 
+
+            const titleClasses = 'text-base font-semibold text-gray-800 group-hover:text-teal-700'; // Dikembalikan ke text-base font-semibold
+
+            // Membangun ulang konten tombol
+            buttonElement.innerHTML = `
+                <span class="flex items-center">
+                    ${iconSvg}
+                    <span class="video-title ${titleClasses}">${title}</span> <!-- Kelas dipindahkan ke var -->
+                </span>
+                <span class="text-sm text-gray-500 font-medium bg-gray-100 px-3 py-1 rounded-full shadow-sm mt-2 sm:mt-0"> <!-- Diubah: Menambahkan mt-2 sm:mt-0 -->
+                    PDF
+                </span>
+            `;
+        }
+
+
+        // Fungsi untuk menginisialisasi dashboard (DISESUAIKAN)
+        function initializeDashboard() {
+            const container = document.getElementById('dashboard-container');
+            container.innerHTML = ''; 
+            // Tidak perlu 'watchedUrls' lagi
+            
+            contentData.forEach((topic, index) => { // <-- Ditambahkan 'index'
+                // Wadah untuk setiap topik (Accordion Item)
+                const topicDiv = createElement('div', 'bg-white shadow-xl rounded-xl mb-4 overflow-hidden border border-gray-100');
+                
+                // Menyiapkan judul dengan nomor
+                const topicNumber = index + 1;
+                const displayTitle = `Topik ${topicNumber}: ${topic.title}`;
+
+                // Header Tombol Dropdown (Sama seperti sebelumnya)
+                // Diubah: p-5 -> p-4 sm:p-5 dan text-xl -> text-lg sm:text-xl
+                const button = createElement('button', 'flex justify-between items-center w-full p-4 sm:p-5 text-left font-bold text-lg sm:text-xl text-teal-800 bg-teal-50 hover:bg-teal-100 focus:outline-none transition duration-150 border-b border-teal-200',
+                    `<span>${displayTitle}</span> <!-- Diperbarui -->
+                     <svg class="h-6 w-6 text-teal-600 transition-transform duration-300 transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" id="icon-${topic.id}">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                     </svg>`
+                );
+                button.setAttribute('aria-expanded', 'false');
+                button.setAttribute('aria-controls', `content-${topic.id}`);
+                button.addEventListener('click', () => toggleAccordion(topic.id));
+                topicDiv.appendChild(button);
+
+                // Konten Dropdown (Sama seperti sebelumnya)
+                const contentDiv = createElement('div', 'collapsible-content', '');
+                contentDiv.id = `content-${topic.id}`;
+                contentDiv.setAttribute('aria-hidden', 'true');
+
+                const linksList = createElement('div', 'p-4 space-y-4');
+
+                // Loop untuk tautan (DIUBAH)
+                topic.links.forEach((link, linkIndex) => { // <-- Ditambahkan 'linkIndex'
+                    // Buat sebagai <button> bukan <a>
+                    const linkButton = createElement('button', 'w-full'); // Kelas awal akan ditimpa oleh applyDynamicStyle
+                    linkButton.setAttribute('data-url', link.url); // Simpan URL di data-attribute
+                    
+                    // --- LOGIKA PENOMORAN YANG DISESUAIKAN ---
+                    // 1. Dapatkan title asli
+                    const originalTitle = link.title;
+                    
+                    // 2. Bersihkan nomor lama (misal "1. ", "2. ") jika ada
+                    const cleanTitle = originalTitle.replace(/^\d+\.\s*/, '');
+
+                    let displayTitle; // Deklarasikan di luar
+
+                    // HANYA tambahkan prefix jika ada LEBIH DARI SATU link di topik ini
+                    if (topic.links.length > 1) {
+                        // 3. Buat prefix alfabet (a, b, c, ...)
+                        //    String.fromCharCode(97) adalah 'a'
+                        const prefix = String.fromCharCode(97 + linkIndex) + ". ";
+                        displayTitle = prefix + cleanTitle;
+                    } else {
+                        // Jika hanya satu link, gunakan judul yang sudah dibersihkan saja
+                        displayTitle = cleanTitle;
+                    }
+                    // --- AKHIR LOGIKA YANG DISESUAIKAN ---
+
+                    linkButton.setAttribute('data-title', displayTitle); // <-- Gunakan displayTitle
+                    
+                    // Tidak ada lagi logika 'isLocked' or 'isWatched'
+                    
+                    // Panggil fungsi penataan gaya yang baru
+                    applyDynamicStyle(linkButton);
+                    
+                    // Tambahkan event listener untuk membuka modal
+                    linkButton.addEventListener('click', () => openModal(displayTitle, link.url)); // <-- Gunakan displayTitle
+                    
+                    linksList.appendChild(linkButton);
+                });
+
+                contentDiv.appendChild(linksList);
+                topicDiv.appendChild(contentDiv);
+                container.appendChild(topicDiv);
+            });
+        }
+
+        // Fungsi toggle Accordion (Sama seperti sebelumnya)
+        function toggleAccordion(id) {
+            const content = document.getElementById(`content-${id}`);
+            const icon = document.getElementById(`icon-${id}`);
+            const button = content.previousElementSibling;
+
+            const isActive = content.classList.toggle('active');
+
+            if (isActive) {
+                button.setAttribute('aria-expanded', 'true');
+                content.setAttribute('aria-hidden', 'false');
+                icon.classList.add('rotate-180');
+                icon.classList.remove('rotate-0');
+            } else {
+                button.setAttribute('aria-expanded', 'false');
+                content.setAttribute('aria-hidden', 'true');
+                icon.classList.add('rotate-0');
+                icon.classList.remove('rotate-180');
+            }
+        }
+
+        // Jalankan inisialisasi setelah dokumen dimuat
+        window.onload = initializeDashboard;
+    </script>
+</body>
+</html>
